@@ -6,6 +6,7 @@ using PFM.Models.Enums;
 using PFM.Mappings;
 using PFM.Database.Entities;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace PFM.Services
 {
@@ -41,7 +42,8 @@ namespace PFM.Services
             SortOrder sortOrder,
             string? sortBy)
         {
-            var transactions = await _transactionRepository.GetTransactions(transactionKind,
+            var transactions = await _transactionRepository.GetTransactions(
+           transactionKind,
            startDate,
            endDate,
            page,
@@ -51,7 +53,7 @@ namespace PFM.Services
             return _mapper.Map<PagedSortedList<Models.Transaction>>(transactions);
         }
 
-     
+
 
         public async Task<Models.Transaction> GetTransactionById(string id)
         {
@@ -98,6 +100,7 @@ namespace PFM.Services
             return await _transactionRepository.DeleteTransaction(id);
         }
 
-     
     }
-}
+   
+ }
+

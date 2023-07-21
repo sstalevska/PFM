@@ -12,6 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<ICSVService, CSVService>();
+
 
 // AutoMapper definition
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());

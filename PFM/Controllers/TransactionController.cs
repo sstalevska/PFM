@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PFM.Commands;
+using PFM.Models;
 using PFM.Models.Enums;
 using PFM.Services;
 
@@ -11,10 +12,13 @@ namespace PFM.Controllers
     {
         private readonly ILogger<TransactionController> _logger;
         private readonly ITransactionService _transactionService;
-        public TransactionController(ILogger<TransactionController> logger, ITransactionService transactionService)
+        private readonly ICSVService _csvService;
+
+        public TransactionController(ILogger<TransactionController> logger, ITransactionService transactionService, ICSVService csvService)
         {
             _logger = logger;
             _transactionService = transactionService;
+            _csvService =  csvService;
         }
 
         [HttpGet("transactions")]
@@ -33,11 +37,7 @@ namespace PFM.Controllers
         }
 
 
-        [HttpPost("transactions/import")]
-        public IActionResult ImportTransactions()
-        {
-            return Ok();
-        }
+     
 
         [HttpPost("transaction/{id}/split")]
         public IActionResult SplitTransaction()
@@ -107,6 +107,14 @@ namespace PFM.Controllers
             }
             return Ok();
 
+        }
+
+        [HttpPost("transactions/import")]
+        public async Task<IActionResult> ImportTransactionsFromCSV([FromForm] IFormFileCollection file)
+        {
+            var transactions = _csvService.ReadCSV<TransactionCSV>(file[0].OpenReadStream());
+
+            return Ok(transactions);
         }
     }
 }

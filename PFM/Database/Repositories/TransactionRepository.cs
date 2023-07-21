@@ -2,6 +2,9 @@
 using PFM.Database.Entities;
 using PFM.Models;
 using PFM.Models.Enums;
+using System.Formats.Asn1;
+using System.Globalization;
+using CsvHelper;
 
 namespace PFM.Database.Repositories
 {
@@ -64,6 +67,18 @@ namespace PFM.Database.Repositories
             var totalCount = query.Count();
             var totalPages = (int) Math.Ceiling(totalCount*1.0 / pageSize);
 
+            if (!String.IsNullOrEmpty(startDate))
+            {
+                DateTime parsedStartDate = DateTime.Parse(startDate);
+                query = query.Where(o => o.Date >= parsedStartDate);
+            }
+
+            if (!String.IsNullOrEmpty(endDate))
+            {
+                DateTime parsedEndDate = DateTime.Parse(endDate);
+                query = query.Where(o => o.Date <= parsedEndDate);
+            }
+
             if (!String.IsNullOrEmpty(sortBy))
             {
                 switch (sortBy)
@@ -72,11 +87,6 @@ namespace PFM.Database.Repositories
                         query = sortOrder == SortOrder.Asc 
                             ? query.OrderBy(x => x.Id) 
                             : query.OrderByDescending(x => x.Id);
-                        break;
-                    case "date":
-                        query = sortOrder == SortOrder.Asc
-                            ? query.OrderBy(x => x.Date)
-                            : query.OrderByDescending(x => x.Date);
                         break;
                     case "beneficiary-name":
                         query = sortOrder == SortOrder.Asc 
@@ -118,29 +128,100 @@ namespace PFM.Database.Repositories
                             ? query.OrderBy(x => x.CatCode)
                             : query.OrderByDescending(x => x.CatCode);
                         break;
+                    default:
+                    case "date":
+                        query = sortOrder == SortOrder.Asc
+                            ? query.OrderBy(x => x.Date)
+                            : query.OrderByDescending(x => x.Date);
+                        break;
+
 
                 }
             }
             else
             {
-                query.OrderBy(x => x.Date);
+                query = query.OrderBy(x => x.Date);
             }
 
             query = query.Skip((page - 1) * pageSize).Take(pageSize);
+
+            if (!String.IsNullOrEmpty(transactionKind))
+            {
+                switch (transactionKind)
+                {
+                    case "dep":
+                        query = query.Where(o => o.Kind == TransactionKind.dep);
+                        break;
+                    case "wdw":
+                        query = query.Where(o => o.Kind == TransactionKind.wdw);
+                        break;
+                    case "pmt":
+                        query = query.Where(o => o.Kind == TransactionKind.pmt);
+                        break;
+                    case "fee":
+                        query = query.Where(o => o.Kind == TransactionKind.fee);
+                        break;
+                    case "inc":
+                        query = query.Where(o => o.Kind == TransactionKind.inc);
+                        break;
+                    case "rev":
+                        query = query.Where(o => o.Kind == TransactionKind.rev);
+                        break;
+                    case "adj":
+                        query = query.Where(o => o.Kind == TransactionKind.adj);
+                        break;
+                    case "lnd":
+                        query = query.Where(o => o.Kind == TransactionKind.lnd);
+                        break;
+                    case "lnr":
+                        query = query.Where(o => o.Kind == TransactionKind.lnr);
+                        break;
+                    case "fcx":
+                        query = query.Where(o => o.Kind == TransactionKind.fcx);
+                        break;
+                    case "aop":
+                        query = query.Where(o => o.Kind == TransactionKind.aop);
+                        break;
+                    case "acl":
+                        query = query.Where(o => o.Kind == TransactionKind.acl);
+                        break;
+                    case "spl":
+                        query = query.Where(o => o.Kind == TransactionKind.spl);
+                        break;
+                    case "sal":
+                        query = query.Where(o => o.Kind == TransactionKind.sal);
+                        break;
+                    default:
+                    case null:
+                        query = query.Where(o => true);
+                        break;
+
+                }
+
+            }
+            else
+            {
+                query = query.Where(o => true);
+            }
+
             var transactions = await query.ToListAsync();
 
-            return new PagedSortedList<TransactionEntity>
-            {
-                TotalPages = totalPages,
-                TotalCount = totalCount,
-                Page = page,
-                PageSize = pageSize,
-                SortBy = sortBy,
-                SortOrder = sortOrder,
-                Items = transactions
-            };
+            
+                return new PagedSortedList<TransactionEntity>
+                {
+                    TotalPages = totalPages,
+                    TotalCount = totalCount,
+                    Page = page,
+                    PageSize = pageSize,
+                    SortBy = sortBy,
+                    SortOrder = sortOrder,
+                    Items = transactions
+                };
+            
+
+            
         }
 
-      
+        
     }
 }
