@@ -5,14 +5,25 @@ using PFM.Database.Repositories;
 using PFM.Services;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using TransactionDbContext = PFM.Database.TransactionDbContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+
+
+builder.Services.AddScoped<ISplitRepository, SplitRepository>();
+builder.Services.AddScoped<ISplitService, SplitService>();
 
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ICSVService, CSVService>();
+builder.Services.AddScoped<ITransactionCSVService, TransactionCSVService>();
+
+
+
 
 
 // AutoMapper definition
@@ -32,11 +43,24 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 //DB Context registration
+builder.Services.AddDbContext<CategoryDbContext>(opt =>
+{
+    opt.UseNpgsql(CreateConnectionString(builder.Configuration));
+}
+);
+builder.Services.AddDbContext<SplitDbContext>(opt =>
+{
+    opt.UseNpgsql(CreateConnectionString(builder.Configuration));
+}
+);
 builder.Services.AddDbContext<TransactionDbContext>(opt =>
 {
     opt.UseNpgsql(CreateConnectionString(builder.Configuration));
 }
 );
+
+
+
 
 var app = builder.Build();
 
@@ -47,8 +71,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 
     using var scope = app.Services.GetService<IServiceScopeFactory>().CreateScope();
+    scope.ServiceProvider.GetRequiredService<CategoryDbContext>().Database.Migrate();
+    scope.ServiceProvider.GetRequiredService<SplitDbContext>().Database.Migrate();
     scope.ServiceProvider.GetRequiredService<TransactionDbContext>().Database.Migrate();
-
 }
 
 app.UseAuthorization();

@@ -23,7 +23,7 @@ namespace PFM.Database.Repositories
           string? sortBy = null);
 
 
-
+        Task<List<TransactionEntity>> ImportTransactions(List<TransactionEntity> transactionEntities);
 
     }
 }

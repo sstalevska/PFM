@@ -7,7 +7,6 @@ namespace PFM.Services
 {
     public interface ITransactionService
     {
-      //  Task CategorizeTransaction(CategorizeTransactionCommand categorizeTransactionCommand);
 
         Task<Transaction> GetTransactionById(string id);
         Task<Transaction> CreateTransaction(CreateTransactionCommand command);

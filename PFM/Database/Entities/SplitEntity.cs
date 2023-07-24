@@ -1,8 +1,8 @@
-﻿using PFM.Database.Entities;
+﻿using PFM.Models;
 
-namespace PFM.Models
+namespace PFM.Database.Entities
 {
-    public class Split
+    public class SplitEntity
     {
         public int id { get; set; }
         public string transactionid { get; set; }
@@ -10,6 +10,6 @@ namespace PFM.Models
 
         public string catcode { get; set; }
         public CategoryEntity category { get; set; }
-        public double amount { get; set; }
+        public double amount { get; set; }        
     }
 }

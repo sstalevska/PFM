@@ -1,4 +1,7 @@
-﻿using PFM.Models.Enums;
+﻿using Microsoft.Extensions.Hosting;
+using PFM.Database.Entities;
+using PFM.Models.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PFM.Models
 {
@@ -14,6 +17,9 @@ namespace PFM.Models
         public string Mcc { get; set; }
         public TransactionKind Kind { get; set; }
         public string CatCode { get; set; }
-        public Split Splits { get; set; }
+        public CategoryEntity category { get; set; }
+
+        [NotMapped]
+        public ICollection<SplitEntity> Splits { get; set; } = new List<SplitEntity>();
     }
 }

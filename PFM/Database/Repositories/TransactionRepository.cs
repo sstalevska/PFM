@@ -222,6 +222,18 @@ namespace PFM.Database.Repositories
             
         }
 
-        
+        public async Task<List<TransactionEntity>> ImportTransactions(List<TransactionEntity> transactionEntities)
+        {
+            foreach(var transactionEntity in transactionEntities)
+            {
+                _dbContext.Transactions.Add(transactionEntity);
+                await _dbContext.SaveChangesAsync();
+
+            }
+
+           // await _dbContext.SaveChangesAsync();
+
+            return transactionEntities;
+        }
     }
 }

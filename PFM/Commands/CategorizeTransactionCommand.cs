@@ -21,7 +21,7 @@ namespace PFM.Commands
         public TransactionKind Kind { get; set; }
 
         [Required]
-        public string CatCode { get; set; }
+        public Category CatCode { get; set; }
         public Split Splits { get; set; }
     }
 }
