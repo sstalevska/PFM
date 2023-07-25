@@ -28,11 +28,10 @@ namespace PFM.Database.Configurations
             builder.Property(x => x.Currency).IsRequired().HasMaxLength(3);
             builder.Property(x => x.Mcc);
             builder.Property(x => x.Kind).HasConversion<string>().IsRequired();
-            builder.Property(x => x.CatCode).HasConversion<string>();
-            builder.Property(x => x.Splits).HasConversion<string>();
+            builder.Property(x => x.CatCode);
+            //builder.Property(x => x.Splits).HasConversion<string>();
 
-           // builder.HasMany(x => x.Splits);
-            //builder.HasOne(x => x.CatCode);
+
 
 
 

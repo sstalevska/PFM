@@ -11,8 +11,8 @@ namespace PFM.Database.Repositories
     
     public class TransactionRepository : ITransactionRepository
     {
-        TransactionDbContext _dbContext;
-        public TransactionRepository(TransactionDbContext dbContext) { 
+        PfmDbContext _dbContext;
+        public TransactionRepository(PfmDbContext dbContext) { 
             _dbContext= dbContext;
         }
 

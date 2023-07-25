@@ -1,19 +1,21 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PFM.Database.Entities;
 using System.Reflection;
-using System.Reflection.Metadata;
 
 namespace PFM.Database
 {
-    public class CategoryDbContext : DbContext
+    public class PfmDbContext : DbContext 
     {
-        public DbSet<CategoryEntity> Categories { get; set; }
-        public CategoryDbContext(DbContextOptions<CategoryDbContext> options) : base(options)
+        public DbSet<TransactionEntity> Transactions { get; set; }
+        public DbSet<SplitEntity> Splits { get; set; }
+        public DbSet<CategoryEntity> Categories{ get; set; }
+
+
+
+        public PfmDbContext(DbContextOptions<PfmDbContext> options) : base(options)
         {
         }
-
-        protected CategoryDbContext()
+        protected PfmDbContext()
         {
         }
 
@@ -27,14 +29,19 @@ namespace PFM.Database
                 .WithOne(e => e.category)
                 .HasForeignKey(e => e.catcode)
                 .IsRequired();
-               
+
             modelBuilder.Entity<CategoryEntity>()
                  .HasMany(e => e.transactions)
                 .WithOne(e => e.category)
                 .HasForeignKey(e => e.CatCode);
 
+            modelBuilder.Entity<TransactionEntity>()
+                   .HasMany(e => e.Splits)
+                   .WithOne(e => e.transaction)
+                   .HasForeignKey(e => e.transactionid);
+
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
-    }
-}
 
+   }
+}

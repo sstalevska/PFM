@@ -5,7 +5,6 @@ using PFM.Database.Repositories;
 using PFM.Services;
 using System.Reflection;
 using System.Text.Json.Serialization;
-using TransactionDbContext = PFM.Database.TransactionDbContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,22 +41,16 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+
 //DB Context registration
-builder.Services.AddDbContext<CategoryDbContext>(opt =>
+builder.Services.AddDbContext<PfmDbContext>(opt =>
 {
     opt.UseNpgsql(CreateConnectionString(builder.Configuration));
+   
 }
 );
-builder.Services.AddDbContext<SplitDbContext>(opt =>
-{
-    opt.UseNpgsql(CreateConnectionString(builder.Configuration));
-}
-);
-builder.Services.AddDbContext<TransactionDbContext>(opt =>
-{
-    opt.UseNpgsql(CreateConnectionString(builder.Configuration));
-}
-);
+
 
 
 
@@ -71,9 +64,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 
     using var scope = app.Services.GetService<IServiceScopeFactory>().CreateScope();
-    scope.ServiceProvider.GetRequiredService<CategoryDbContext>().Database.Migrate();
-    scope.ServiceProvider.GetRequiredService<SplitDbContext>().Database.Migrate();
-    scope.ServiceProvider.GetRequiredService<TransactionDbContext>().Database.Migrate();
+    scope.ServiceProvider.GetRequiredService<PfmDbContext>().Database.Migrate();
+
+
 }
 
 app.UseAuthorization();

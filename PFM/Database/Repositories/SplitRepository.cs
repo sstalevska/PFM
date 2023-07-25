@@ -9,8 +9,8 @@ namespace PFM.Database.Repositories
 {
     public class SplitRepository : ISplitRepository
     {
-        SplitDbContext _dbContext;
-        public SplitRepository(SplitDbContext dbContext)
+        PfmDbContext _dbContext;
+        public SplitRepository(PfmDbContext dbContext)
         {
             _dbContext = dbContext;
         }

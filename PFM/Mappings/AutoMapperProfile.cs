@@ -26,9 +26,7 @@ namespace PFM.Mappings
                 .ForMember(d => d.Description, opts => opts.MapFrom(s => s.description))
                 .ForMember(d => d.Currency, opts => opts.MapFrom(s => s.currency))
                 .ForMember(d => d.Mcc, opts => opts.MapFrom(s => s.mcc))
-                .ForMember(d => d.Kind, opts => opts.MapFrom(s => s.kind))
-                .ForMember(d => d.CatCode, opts => opts.MapFrom(s => s.catcode))
-                .ForMember(d => d.Splits, opts => opts.MapFrom(s => s.splits));
+                .ForMember(d => d.Kind, opts => opts.MapFrom(s => s.kind));
 
 
             CreateMap<CategoryEntity, Category>();

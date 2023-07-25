@@ -21,7 +21,5 @@ namespace PFM.Commands
         public string currency { get; set; }
         public string mcc { get; set; }
         public TransactionKind kind { get; set; }
-        public Category catcode { get; set; }
-        public Split splits { get; set; }
     }
 }

@@ -12,8 +12,8 @@ namespace PFM.Database.Repositories
     public class CategoryRepository : ICategoryRepository
     {
 
-        CategoryDbContext _dbContext;
-        public CategoryRepository(CategoryDbContext dbContext)
+        PfmDbContext _dbContext;
+        public CategoryRepository(PfmDbContext dbContext)
         {
             _dbContext = dbContext;
         }

@@ -112,9 +112,9 @@ namespace PFM.Controllers
         }
 
         [HttpPost("transactions/import")]
-        public async Task<IActionResult> ImportTransactionsFromCSV([FromForm] IFormFileCollection file)
+        public async Task<IActionResult> ImportTransactionsFromCSV([FromForm] IFormFile file)
         {
-            var transactions = _transactionCSVService.ReadCSV<TransactionCSVCommand>(file[0].OpenReadStream());
+            var transactions = _transactionCSVService.ReadCSV<TransactionCSVCommand>(file.OpenReadStream());
 
             return Ok(transactions);
         }
