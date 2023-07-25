@@ -18,8 +18,8 @@ namespace PFM.Database.Repositories
 
         public async Task<TransactionEntity> CategorizeTransaction(TransactionEntity transactionEntity)
         {
-            var trans = await _dbContext.Transactions.FirstOrDefaultAsync(x => x.Id.Equals(transactionEntity.Id));
-            trans.CatCode = transactionEntity.CatCode; 
+            var trans = await _dbContext.Transactions.FirstOrDefaultAsync(x => x.id.Equals(transactionEntity.id));
+            trans.catcode= transactionEntity.catcode; 
 
             await _dbContext.SaveChangesAsync();
 
@@ -41,13 +41,13 @@ namespace PFM.Database.Repositories
             if (!String.IsNullOrEmpty(startDate))
             {
                 DateTime parsedStartDate = DateTime.Parse(startDate);
-                query = query.Where(o => o.Date >= parsedStartDate);
+                query = query.Where(o => o.date >= parsedStartDate);
             }
 
             if (!String.IsNullOrEmpty(endDate))
             {
                 DateTime parsedEndDate = DateTime.Parse(endDate);
-                query = query.Where(o => o.Date <= parsedEndDate);
+                query = query.Where(o => o.date <= parsedEndDate);
             }
 
             if (!String.IsNullOrEmpty(sortBy))
@@ -56,54 +56,54 @@ namespace PFM.Database.Repositories
                 {
                     case "id":
                         query = sortOrder == SortOrder.Asc 
-                            ? query.OrderBy(x => x.Id) 
-                            : query.OrderByDescending(x => x.Id);
+                            ? query.OrderBy(x => x.id) 
+                            : query.OrderByDescending(x => x.id);
                         break;
                     case "beneficiary-name":
                         query = sortOrder == SortOrder.Asc 
-                            ? query.OrderBy(x => x.BeneficiaryName) 
-                            : query.OrderByDescending(x => x.BeneficiaryName);
+                            ? query.OrderBy(x => x.beneficiaryname) 
+                            : query.OrderByDescending(x => x.beneficiaryname);
                         break;
                     case "amount":
                         query = sortOrder == SortOrder.Asc
-                            ? query.OrderBy(x => x.Amount)
-                            : query.OrderByDescending(x => x.Amount);
+                            ? query.OrderBy(x => x.amount)
+                            : query.OrderByDescending(x => x.amount);
                         break;
                     case "description":
                         query = sortOrder == SortOrder.Asc
-                            ? query.OrderBy(x => x.Description)
-                            : query.OrderByDescending(x => x.Description);
+                            ? query.OrderBy(x => x.description)
+                            : query.OrderByDescending(x => x.description);
                         break;
                     case "kind":
                         query = sortOrder == SortOrder.Asc
-                            ? query.OrderBy(x => x.Kind)
-                            : query.OrderByDescending(x => x.Kind);
+                            ? query.OrderBy(x => x.kind)
+                            : query.OrderByDescending(x => x.kind);
                         break;
                     case "currency":
                         query = sortOrder == SortOrder.Asc
-                            ? query.OrderBy(x => x.Currency)
-                            : query.OrderByDescending(x => x.Currency);
+                            ? query.OrderBy(x => x.currency)
+                            : query.OrderByDescending(x => x.currency);
                         break;
                     case "direction":
                         query = sortOrder == SortOrder.Asc
-                            ? query.OrderBy(x => x.Direction)
-                            : query.OrderByDescending(x => x.Direction);
+                            ? query.OrderBy(x => x.direction)
+                            : query.OrderByDescending(x => x.direction);
                         break;
                     case "mcc":
                         query = sortOrder == SortOrder.Asc
-                            ? query.OrderBy(x => x.Mcc)
-                            : query.OrderByDescending(x => x.Mcc);
+                            ? query.OrderBy(x => x.mcc)
+                            : query.OrderByDescending(x => x.mcc);
                         break;
                     case "catcode":
                         query = sortOrder == SortOrder.Asc
-                            ? query.OrderBy(x => x.CatCode)
-                            : query.OrderByDescending(x => x.CatCode);
+                            ? query.OrderBy(x => x.catcode)
+                            : query.OrderByDescending(x => x.catcode);
                         break;
                     default:
                     case "date":
                         query = sortOrder == SortOrder.Asc
-                            ? query.OrderBy(x => x.Date)
-                            : query.OrderByDescending(x => x.Date);
+                            ? query.OrderBy(x => x.date)
+                            : query.OrderByDescending(x => x.date);
                         break;
 
 
@@ -111,7 +111,7 @@ namespace PFM.Database.Repositories
             }
             else
             {
-                query = query.OrderBy(x => x.Date);
+                query = query.OrderBy(x => x.date);
             }
 
             query = query.Skip((page - 1) * pageSize).Take(pageSize);
@@ -121,46 +121,46 @@ namespace PFM.Database.Repositories
                 switch (transactionKind)
                 {
                     case "dep":
-                        query = query.Where(o => o.Kind == TransactionKind.dep);
+                        query = query.Where(o => o.kind == TransactionKind.dep);
                         break;
                     case "wdw":
-                        query = query.Where(o => o.Kind == TransactionKind.wdw);
+                        query = query.Where(o => o.kind == TransactionKind.wdw);
                         break;
                     case "pmt":
-                        query = query.Where(o => o.Kind == TransactionKind.pmt);
+                        query = query.Where(o => o.kind == TransactionKind.pmt);
                         break;
                     case "fee":
-                        query = query.Where(o => o.Kind == TransactionKind.fee);
+                        query = query.Where(o => o.kind == TransactionKind.fee);
                         break;
                     case "inc":
-                        query = query.Where(o => o.Kind == TransactionKind.inc);
+                        query = query.Where(o => o.kind == TransactionKind.inc);
                         break;
                     case "rev":
-                        query = query.Where(o => o.Kind == TransactionKind.rev);
+                        query = query.Where(o => o.kind == TransactionKind.rev);
                         break;
                     case "adj":
-                        query = query.Where(o => o.Kind == TransactionKind.adj);
+                        query = query.Where(o => o.kind == TransactionKind.adj);
                         break;
                     case "lnd":
-                        query = query.Where(o => o.Kind == TransactionKind.lnd);
+                        query = query.Where(o => o.kind == TransactionKind.lnd);
                         break;
                     case "lnr":
-                        query = query.Where(o => o.Kind == TransactionKind.lnr);
+                        query = query.Where(o => o.kind == TransactionKind.lnr);
                         break;
                     case "fcx":
-                        query = query.Where(o => o.Kind == TransactionKind.fcx);
+                        query = query.Where(o => o.kind == TransactionKind.fcx);
                         break;
                     case "aop":
-                        query = query.Where(o => o.Kind == TransactionKind.aop);
+                        query = query.Where(o => o.kind == TransactionKind.aop);
                         break;
                     case "acl":
-                        query = query.Where(o => o.Kind == TransactionKind.acl);
+                        query = query.Where(o => o.kind == TransactionKind.acl);
                         break;
                     case "spl":
-                        query = query.Where(o => o.Kind == TransactionKind.spl);
+                        query = query.Where(o => o.kind == TransactionKind.spl);
                         break;
                     case "sal":
-                        query = query.Where(o => o.Kind == TransactionKind.sal);
+                        query = query.Where(o => o.kind == TransactionKind.sal);
                         break;
                     default:
                     case null:
@@ -191,7 +191,7 @@ namespace PFM.Database.Repositories
         }
         public async Task<TransactionEntity> GetTransactionById(string id)
         {
-            return await _dbContext.Transactions.FirstOrDefaultAsync(x => x.Id.Equals(id));
+            return await _dbContext.Transactions.FirstOrDefaultAsync(x => x.id.Equals(id));
         }
 
         public async Task ImportTransactions(List<TransactionEntity> transactionEntities)

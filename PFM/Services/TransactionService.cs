@@ -92,7 +92,6 @@ namespace PFM.Services
         public IEnumerable<PFM.Database.Entities.TransactionEntity> ReadCSV<TransactionEntity>(Stream file)
         {
 
-
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 PrepareHeaderForMatch = args => args.Header.Replace("-", ""),
@@ -107,11 +106,12 @@ namespace PFM.Services
             foreach (var t in transactions)
             {
                 var transactionEntity = _mapper.Map<PFM.Database.Entities.TransactionEntity>(t);
-                transactionEntities.Add(transactionEntity);
+                
+                    transactionEntities.Add(transactionEntity);
+                
             }
 
             _transactionRepository.ImportTransactions(transactionEntities);
-           // var trans = csv.GetRecords<Transaction>();
             return transactionEntities;
 
         }

@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
 using CsvHelper;
+using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using PFM.Commands;
+using PFM.Database.Entities;
 using PFM.Database.Repositories;
 using PFM.Models;
 using PFM.Models.Enums;
@@ -22,28 +25,30 @@ namespace PFM.Services
             var categories = await _categoryRepository.GetCategories(parentcode);
             return _mapper.Map<List<Category>>(categories);
         }
-        /*
-        public async Task<Results<List<CategoryRepository>>> ImportCategoriesAsync(IFormFile file)
+        public IEnumerable<Database.Entities.CategoryEntity> ReadCSV<CategoryEntity>(Stream file)
         {
-            var categories = CsvParser.ParseCSV<Category, CategoryCSVMap>(file);
-            if(categories is null)
-            {
-                var exception = new Exception("Error occured while reading CSV file");
-                return new Result<List<CategoryRepository>>(exception);
-            }
-            _categoryRepository.ImportCategories(categories);
-            try
-            {
-                await _unitOfWork.SaveChangesAsync();
-                return _mapper.Map<List<CategoryRepository>>(categories.Take(10).ToList());
 
-            }
-            catch
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                var exception = new Exception("Error occured while writing in database");
-                return new Microsoft.AspNetCore.Http.Results<List<CategoryRepository>>(exception);
+                PrepareHeaderForMatch = args => args.Header.Replace("-", ""),
+                HeaderValidated = null
+               // MissingFieldFound = null
+            };
+
+            var reader = new StreamReader(file);
+            var csv = new CsvReader(reader, config);
+            var categories = csv.GetRecords<CategoryCSVCommand>();
+            List<Database.Entities.CategoryEntity> categoryEntities = new List<Database.Entities.CategoryEntity>();
+            foreach (var c in categories)
+            {
+                var categoryEntity = _mapper.Map<Database.Entities.CategoryEntity>(c);
+                categoryEntities.Add(categoryEntity);
             }
-        }*/
+
+            _categoryRepository.ImportCategories(categoryEntities);
+            return categoryEntities;
+
+        }
 
     }
 }

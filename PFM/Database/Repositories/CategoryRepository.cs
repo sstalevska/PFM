@@ -35,5 +35,14 @@ namespace PFM.Database.Repositories
 
             return new List<CategoryEntity>(categories);
         }
+
+        public async Task ImportCategories(List<CategoryEntity> categoryEntities)
+        {
+             
+            categoryEntities.ForEach(n => _dbContext.Categories.Add(n));
+
+            await _dbContext.SaveChangesAsync();
+        }
+
     }
 }

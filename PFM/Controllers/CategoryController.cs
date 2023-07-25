@@ -18,11 +18,12 @@ namespace PFM.Controllers
         }
 
         [HttpPost("import")]
-        public async Task<IActionResult> Import()
+        public async Task<IActionResult> ImportTransactionsFromCSV([FromForm] IFormFile file)
         {
-            return Ok();
-        }
+            var categories = _categoryService.ReadCSV<TransactionCSVCommand>(file.OpenReadStream());
 
+            return Ok(categories);
+        }
         [HttpGet]
         public async Task<IActionResult> GetCategories([FromQuery] string? parentcode = null) {
             var categories = await _categoryService.GetCategories(parentcode);

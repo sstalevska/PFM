@@ -6,6 +6,6 @@ namespace PFM.Database.Repositories
     public interface ICategoryRepository
     {
         Task<List<CategoryEntity>> GetCategories(string? parentcode = null);
-
+        Task ImportCategories(List<CategoryEntity> categoryEntities);
     }
 }

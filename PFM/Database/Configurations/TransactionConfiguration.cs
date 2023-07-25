@@ -13,15 +13,15 @@ namespace PFM.Database.Configurations
 
         public void Configure(EntityTypeBuilder<TransactionEntity> builder)
         {
-            builder.HasKey(x => x.Id);
+            builder.HasKey(x => x.id);
             builder
                 .HasOne(x => x.category)
                 .WithMany(x => x.transactions)
-                .HasForeignKey(x => x.CatCode).IsRequired(false);
+                .HasForeignKey(x => x.catcode).IsRequired(false);
             builder
-                .Property(x => x.Currency)
+                .Property(x => x.currency)
                 .HasMaxLength(3);
-            builder.HasMany(x => x.Splits);
+            builder.HasMany(x => x.splits);
         }
     }
 }

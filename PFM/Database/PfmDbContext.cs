@@ -33,10 +33,10 @@ namespace PFM.Database
             modelBuilder.Entity<CategoryEntity>()
                  .HasMany(e => e.transactions)
                 .WithOne(e => e.category)
-                .HasForeignKey(e => e.CatCode);
+                .HasForeignKey(e => e.catcode);
 
             modelBuilder.Entity<TransactionEntity>()
-                   .HasMany(e => e.Splits)
+                   .HasMany(e => e.splits)
                    .WithOne(e => e.transaction)
                    .HasForeignKey(e => e.transactionid);
 

@@ -15,10 +15,9 @@ namespace PFM.Mappings
 
             CreateMap<CategorizeTransactionCommand, TransactionEntity>(); 
 
-            CreateMap<CreateTransactionCommand, TransactionEntity>();
 
-            CreateMap<TransactionCSVCommand, TransactionEntity>()
-              ;
+            CreateMap<TransactionCSVCommand, TransactionEntity>();
+            CreateMap<CategoryCSVCommand, CategoryEntity>();
 
 
             CreateMap<CategoryEntity, Category>();

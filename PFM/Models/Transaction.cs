@@ -7,18 +7,18 @@ namespace PFM.Models
 {
     public class Transaction
     {
-        public string Id { get; set; }
-        public string BeneficiaryName { get; set; }
-        public DateTime Date { get; set; }
-        public Direction Direction { get; set; }
-        public double Amount { get; set; }
-        public string Description { get; set; }
-        public string Currency { get; set; }
-        public string Mcc { get; set; }
-        public TransactionKind Kind { get; set; }
+        public string id { get; set; }
+        public string beneficiaryname { get; set; }
+        public DateTime date { get; set; }
+        public Direction direction { get; set; }
+        public double amount { get; set; }
+        public string description { get; set; }
+        public string currency { get; set; }
+        public string mcc { get; set; }
+        public TransactionKind kind { get; set; }
         public string? CatCode { get; set; } = null;
         public CategoryEntity category { get; set; }
-        public List<Split> Splits { get; set; }
+        public List<Split> splits { get; set; }
 
 
         

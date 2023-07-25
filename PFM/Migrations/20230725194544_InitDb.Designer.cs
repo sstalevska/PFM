@@ -12,7 +12,7 @@ using PFM.Database;
 namespace PFM.Migrations
 {
     [DbContext(typeof(PfmDbContext))]
-    [Migration("20230725151538_InitDb")]
+    [Migration("20230725194544_InitDb")]
     partial class InitDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -71,45 +71,44 @@ namespace PFM.Migrations
 
             modelBuilder.Entity("PFM.Database.Entities.TransactionEntity", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("id")
                         .HasColumnType("text");
 
-                    b.Property<double>("Amount")
+                    b.Property<double>("amount")
                         .HasColumnType("double precision");
 
-                    b.Property<string>("BeneficiaryName")
+                    b.Property<string>("beneficiaryname")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("CatCode")
-                        .IsRequired()
+                    b.Property<string>("catcode")
                         .HasColumnType("text");
 
-                    b.Property<string>("Currency")
+                    b.Property<string>("currency")
                         .IsRequired()
                         .HasMaxLength(3)
                         .HasColumnType("character varying(3)");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<DateTime>("date")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Description")
+                    b.Property<string>("description")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Direction")
+                    b.Property<int>("direction")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Kind")
+                    b.Property<int>("kind")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Mcc")
+                    b.Property<string>("mcc")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("id");
 
-                    b.HasIndex("CatCode");
+                    b.HasIndex("catcode");
 
                     b.ToTable("Transactions");
                 });
@@ -123,7 +122,7 @@ namespace PFM.Migrations
                         .IsRequired();
 
                     b.HasOne("PFM.Database.Entities.TransactionEntity", "transaction")
-                        .WithMany("Splits")
+                        .WithMany("splits")
                         .HasForeignKey("transactionid")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -137,9 +136,7 @@ namespace PFM.Migrations
                 {
                     b.HasOne("PFM.Database.Entities.CategoryEntity", "category")
                         .WithMany("transactions")
-                        .HasForeignKey("CatCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("catcode");
 
                     b.Navigation("category");
                 });
@@ -153,7 +150,7 @@ namespace PFM.Migrations
 
             modelBuilder.Entity("PFM.Database.Entities.TransactionEntity", b =>
                 {
-                    b.Navigation("Splits");
+                    b.Navigation("splits");
                 });
 #pragma warning restore 612, 618
         }

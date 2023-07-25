@@ -27,26 +27,25 @@ namespace PFM.Migrations
                 name: "Transactions",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
-                    BeneficiaryName = table.Column<string>(type: "text", nullable: false),
-                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Direction = table.Column<int>(type: "integer", nullable: false),
-                    Amount = table.Column<double>(type: "double precision", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
-                    Currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false),
-                    Mcc = table.Column<string>(type: "text", nullable: false),
-                    Kind = table.Column<int>(type: "integer", nullable: false),
-                    CatCode = table.Column<string>(type: "text", nullable: false)
+                    id = table.Column<string>(type: "text", nullable: false),
+                    beneficiaryname = table.Column<string>(type: "text", nullable: false),
+                    date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    direction = table.Column<int>(type: "integer", nullable: false),
+                    amount = table.Column<double>(type: "double precision", nullable: false),
+                    description = table.Column<string>(type: "text", nullable: false),
+                    currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false),
+                    mcc = table.Column<string>(type: "text", nullable: false),
+                    kind = table.Column<int>(type: "integer", nullable: false),
+                    catcode = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Transactions", x => x.Id);
+                    table.PrimaryKey("PK_Transactions", x => x.id);
                     table.ForeignKey(
-                        name: "FK_Transactions_Categories_CatCode",
-                        column: x => x.CatCode,
+                        name: "FK_Transactions_Categories_catcode",
+                        column: x => x.catcode,
                         principalTable: "Categories",
-                        principalColumn: "code",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "code");
                 });
 
             migrationBuilder.CreateTable(
@@ -72,7 +71,7 @@ namespace PFM.Migrations
                         name: "FK_Splits_Transactions_transactionid",
                         column: x => x.transactionid,
                         principalTable: "Transactions",
-                        principalColumn: "Id",
+                        principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -87,9 +86,9 @@ namespace PFM.Migrations
                 column: "transactionid");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Transactions_CatCode",
+                name: "IX_Transactions_catcode",
                 table: "Transactions",
-                column: "CatCode");
+                column: "catcode");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
