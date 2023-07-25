@@ -32,12 +32,11 @@ namespace PFM.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("parentcode")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("code");
 
-                    b.ToTable("categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("PFM.Database.Entities.SplitEntity", b =>
@@ -57,7 +56,7 @@ namespace PFM.Migrations
 
                     b.Property<string>("transactionid")
                         .IsRequired()
-                        .HasColumnType("character varying(64)");
+                        .HasColumnType("text");
 
                     b.HasKey("id");
 
@@ -65,22 +64,20 @@ namespace PFM.Migrations
 
                     b.HasIndex("transactionid");
 
-                    b.ToTable("splits", (string)null);
+                    b.ToTable("Splits");
                 });
 
             modelBuilder.Entity("PFM.Database.Entities.TransactionEntity", b =>
                 {
                     b.Property<string>("Id")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
+                        .HasColumnType("text");
 
                     b.Property<double>("Amount")
                         .HasColumnType("double precision");
 
                     b.Property<string>("BeneficiaryName")
                         .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
+                        .HasColumnType("text");
 
                     b.Property<string>("CatCode")
                         .IsRequired()
@@ -96,16 +93,13 @@ namespace PFM.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(1024)
-                        .HasColumnType("character varying(1024)");
-
-                    b.Property<string>("Direction")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Kind")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Direction")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Mcc")
                         .IsRequired()
@@ -115,7 +109,7 @@ namespace PFM.Migrations
 
                     b.HasIndex("CatCode");
 
-                    b.ToTable("transactions", (string)null);
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("PFM.Database.Entities.SplitEntity", b =>

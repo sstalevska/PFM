@@ -7,6 +7,9 @@ using PFM.Mappings;
 using PFM.Database.Entities;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using CsvHelper.Configuration;
+using CsvHelper;
+using System.Globalization;
 
 namespace PFM.Services
 {
@@ -98,6 +101,33 @@ namespace PFM.Services
         public async Task<bool> DeleteTransaction(string id)
         {
             return await _transactionRepository.DeleteTransaction(id);
+        }
+
+
+        public IEnumerable<Transaction> ReadCSV<Transaction>(Stream file)
+        {
+
+
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                PrepareHeaderForMatch = args => args.Header.Replace("-", ""),
+                HeaderValidated = null,
+                 MissingFieldFound = null
+            };
+
+            var reader = new StreamReader(file);
+            var csv = new CsvReader(reader, config);
+            var transactions = csv.GetRecords<TransactionCSVCommand>();
+            List<TransactionEntity> transactionEntities = new List<TransactionEntity>();
+            foreach (var t in transactions)
+            {
+                var transactionEntity = _mapper.Map<TransactionEntity>(t);
+                transactionEntities.Add(transactionEntity);
+            }
+            _transactionRepository.ImportTransactions(transactionEntities);
+            var trans = csv.GetRecords<Transaction>();
+            return trans;
+
         }
 
     }

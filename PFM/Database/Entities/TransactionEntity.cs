@@ -19,8 +19,7 @@ namespace PFM.Database.Entities
 
         public string CatCode { get; set; }
         public CategoryEntity category { get; set; }
+        public List<SplitEntity> Splits { get; set; }
 
-        [NotMapped]
-        public ICollection<SplitEntity> Splits { get; set; } = new List<SplitEntity>();
     }
 }

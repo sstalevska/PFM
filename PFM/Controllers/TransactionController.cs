@@ -12,15 +12,11 @@ namespace PFM.Controllers
     {
         private readonly ILogger<TransactionController> _logger;
         private readonly ITransactionService _transactionService;
-        private readonly ICSVService _csvService;
-        private readonly ITransactionCSVService _transactionCSVService;
 
-        public TransactionController(ILogger<TransactionController> logger, ITransactionService transactionService, ICSVService csvService, ITransactionCSVService transactionCSVService)
+        public TransactionController(ILogger<TransactionController> logger, ITransactionService transactionService)
         {
             _logger = logger;
             _transactionService = transactionService;
-            _csvService =  csvService;
-            _transactionCSVService = transactionCSVService;
         }
 
         [HttpGet("transactions")]
@@ -114,7 +110,7 @@ namespace PFM.Controllers
         [HttpPost("transactions/import")]
         public async Task<IActionResult> ImportTransactionsFromCSV([FromForm] IFormFile file)
         {
-            var transactions = _transactionCSVService.ReadCSV<TransactionCSVCommand>(file.OpenReadStream());
+            var transactions = _transactionService.ReadCSV<TransactionCSVCommand>(file.OpenReadStream());
 
             return Ok(transactions);
         }
