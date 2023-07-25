@@ -17,7 +17,7 @@ namespace PFM.Database.Entities
         public string Mcc { get; set; }
         public TransactionKind Kind { get; set; }
 
-        public string CatCode { get; set; }
+        public string? CatCode { get; set; } = null;
         public CategoryEntity category { get; set; }
         public List<SplitEntity> Splits { get; set; }
 

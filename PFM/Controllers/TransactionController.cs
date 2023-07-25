@@ -7,7 +7,7 @@ using PFM.Services;
 namespace PFM.Controllers
 {
     [ApiController]
-    [Route("v1")]
+    [Route("v1/transactions")]
     public class TransactionController : ControllerBase
     {
         private readonly ILogger<TransactionController> _logger;
@@ -19,7 +19,7 @@ namespace PFM.Controllers
             _transactionService = transactionService;
         }
 
-        [HttpGet("transactions")]
+        [HttpGet]
         public async Task<IActionResult> GetTransactionsAsync(
                 [FromQuery] string? transactionKind = null,
                 [FromQuery] string? startDate = null,
@@ -37,7 +37,7 @@ namespace PFM.Controllers
 
      
 
-        [HttpPost("transaction/{id}/split")]
+        [HttpPost("{id}/split")]
         public IActionResult SplitTransaction()
         {
             return Ok();
@@ -45,7 +45,7 @@ namespace PFM.Controllers
 
         
 
-        [HttpPost("transaction/auto-categorize")]
+        [HttpPost("auto-categorize")]
         public IActionResult AutoCategorizeTransactions()
         {
             return Ok();
@@ -54,33 +54,7 @@ namespace PFM.Controllers
 
 
 
-
-
-        [HttpGet("transaction/{id}")]
-        public async Task<IActionResult> GetTransaction([FromRoute] string id)
-        {
-            var transaction = await _transactionService.GetTransactionById(id);
-
-            if (transaction == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(transaction);
-        }
-
-        [HttpPost("transaction/create")]
-        public async Task<IActionResult> CreateTransaction([FromBody] CreateTransactionCommand command)
-        {
-            var result = await _transactionService.CreateTransaction(command);
-            if (result == null)
-            {
-                return BadRequest();
-            }
-            return Ok(result);
-        }
-
-        [HttpPost("transaction/{id}/categorize")]
+        [HttpPost("{id}/categorize")]
         public async Task<IActionResult> CategorizeTransaction([FromRoute] string Id, [FromBody] CategorizeTransactionCommand command)
         {
             if (Id == null)
@@ -95,24 +69,17 @@ namespace PFM.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("transaction/{id}/delete")]
-        public async Task<IActionResult> DeleteTransaction([FromRoute] string id)
-        {
-            var result = await _transactionService.DeleteTransaction(id);
-            if (!result)
-            {
-                return NotFound();
-            }
-            return Ok();
+       
 
-        }
-
-        [HttpPost("transactions/import")]
+        [HttpPost("import")]
         public async Task<IActionResult> ImportTransactionsFromCSV([FromForm] IFormFile file)
         {
             var transactions = _transactionService.ReadCSV<TransactionCSVCommand>(file.OpenReadStream());
 
             return Ok(transactions);
         }
+
+
+        
     }
 }

@@ -25,35 +25,6 @@ namespace PFM.Database.Repositories
 
             return transactionEntity;
         }
-
-        public async Task<TransactionEntity> CreateTransaction(TransactionEntity transactionEntity)
-        {
-            _dbContext.Transactions.Add(transactionEntity);
-
-            await _dbContext.SaveChangesAsync();
-
-            return transactionEntity;
-        }
-
-        public async Task<bool> DeleteTransaction(string id)
-        {
-            var transaction = await GetTransactionById(id);
-
-            if (transaction == null)
-            {
-                return false;
-            }
-
-            _dbContext.Remove(transaction);
-            await _dbContext.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<TransactionEntity> GetTransactionById(string id)
-        {
-            return await _dbContext.Transactions.FirstOrDefaultAsync(x => x.Id.Equals(id));
-        }
-
         public async Task<PagedSortedList<TransactionEntity>> GetTransactions(
             string? transactionKind = null, 
             string? startDate = null, 
@@ -217,19 +188,22 @@ namespace PFM.Database.Repositories
                     SortOrder = sortOrder,
                     Items = transactions
                 };
-            
-
-            
+        }
+        public async Task<TransactionEntity> GetTransactionById(string id)
+        {
+            return await _dbContext.Transactions.FirstOrDefaultAsync(x => x.Id.Equals(id));
         }
 
-        public async Task<List<TransactionEntity>> ImportTransactions(List<TransactionEntity> transactionEntities)
+        public async Task ImportTransactions(List<TransactionEntity> transactionEntities)
         {
-            await _dbContext.Transactions.AddRangeAsync(transactionEntities);
+            //await _dbContext.Transactions.AddRangeAsync(transactionEntities);
+            transactionEntities.ForEach(n => _dbContext.Transactions.Add(n));
+
             await _dbContext.SaveChangesAsync();
 
-
-
-            return transactionEntities;
+           // return transactionEntities;
         }
+
+        
     }
 }

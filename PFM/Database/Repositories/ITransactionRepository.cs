@@ -6,13 +6,11 @@ namespace PFM.Database.Repositories
 {
     public interface ITransactionRepository
     {
-        Task<TransactionEntity> GetTransactionById(string id);
-        Task<TransactionEntity> CreateTransaction(TransactionEntity transactionEntity);
+       
 
         Task<TransactionEntity> CategorizeTransaction(TransactionEntity transactionEntity);
 
-        Task<bool> DeleteTransaction(string id);
-
+        Task<TransactionEntity> GetTransactionById(string id);
         Task<PagedSortedList<TransactionEntity>> GetTransactions(
           string? transactionKind = null,
           string? startDate = null,
@@ -23,7 +21,7 @@ namespace PFM.Database.Repositories
           string? sortBy = null);
 
 
-        Task<List<TransactionEntity>> ImportTransactions(List<TransactionEntity> transactionEntities);
+        Task ImportTransactions  (List<TransactionEntity> transactionEntities);
 
     }
 }

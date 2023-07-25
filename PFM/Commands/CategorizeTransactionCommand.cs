@@ -20,7 +20,7 @@ namespace PFM.Commands
         public string Mcc { get; set; }
         public TransactionKind Kind { get; set; }
 
-        [Required]
+     //   [Required]
         public Category CatCode { get; set; }
         public Split Splits { get; set; }
     }

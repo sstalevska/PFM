@@ -8,21 +8,19 @@ namespace PFM.Services
     public interface ITransactionService
     {
 
-        Task<Transaction> GetTransactionById(string id);
-        Task<Transaction> CreateTransaction(CreateTransactionCommand command);
 
         Task<Transaction> CategorizeTransaction(string Id, CategorizeTransactionCommand command);
 
         Task<PagedSortedList<Transaction>> GetTransactions(
-            string? transactionKind,
-            string? startDate,
-            string? endDate,
-            int page,
-            int pageSize,
-            SortOrder sortOrder,
-            string? sortBy);
-        Task<bool> DeleteTransaction(string id);
-         IEnumerable<Transaction> ReadCSV<Transaction>(Stream file);
+              string? transactionKind,
+              string? startDate,
+              string? endDate,
+              int page,
+              int pageSize,
+              SortOrder sortOrder,
+              string? sortBy);
+        IEnumerable<PFM.Database.Entities.TransactionEntity> ReadCSV<TransactionEntity>(Stream file);
+        Task<Transaction> GetTransactionById(string id);
 
 
     }

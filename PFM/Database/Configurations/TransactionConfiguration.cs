@@ -17,7 +17,7 @@ namespace PFM.Database.Configurations
             builder
                 .HasOne(x => x.category)
                 .WithMany(x => x.transactions)
-                .HasForeignKey(x => x.CatCode);
+                .HasForeignKey(x => x.CatCode).IsRequired(false);
             builder
                 .Property(x => x.Currency)
                 .HasMaxLength(3);
