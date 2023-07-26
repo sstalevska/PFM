@@ -19,7 +19,7 @@ builder.Services.AddScoped<ISplitService, SplitService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 
-
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 
 
 

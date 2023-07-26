@@ -6,6 +6,7 @@ using PFM.Models.Enums;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace PFM.Database.Repositories
 {
@@ -20,18 +21,21 @@ namespace PFM.Database.Repositories
         public async Task<List<CategoryEntity>> GetCategories(string? parentcode = null)
         {
             var query = _dbContext.Categories.AsQueryable();
-            
 
-            if (!String.IsNullOrEmpty(parentcode))
+            if (parentcode == null)
             {
+                // Filtriranje samo na main categories
+                query = query.Where(o => o.parentcode == null || !Regex.IsMatch(o.parentcode, "^[A-Z]+$"));
+            }
+            else
+            {
+                //Filtriranje na subkategorii spored parentcode
                 query = query.Where(o => o.parentcode == parentcode);
             }
 
             query = query.OrderBy(o => o.code);
 
-
             var categories = await query.ToListAsync();
-
 
             return new List<CategoryEntity>(categories);
         }
@@ -43,6 +47,10 @@ namespace PFM.Database.Repositories
 
             await _dbContext.SaveChangesAsync();
         }
-
+        public async Task<CategoryEntity> GetCategoryByCode(string code)
+        {
+            return await _dbContext.Categories
+                .FirstOrDefaultAsync(c => c.code == code);
+        }
     }
 }

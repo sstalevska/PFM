@@ -16,7 +16,7 @@ namespace PFM.Models
         public string currency { get; set; }
         public string mcc { get; set; }
         public TransactionKind kind { get; set; }
-        public string? CatCode { get; set; } = null;
+        public string? catcode { get; set; } = null;
         public CategoryEntity category { get; set; }
         public List<Split> splits { get; set; }
 

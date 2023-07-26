@@ -86,12 +86,11 @@ namespace PFM.Services
         }
 
 
-        
 
 
-        public IEnumerable<PFM.Database.Entities.TransactionEntity> ReadCSV<TransactionEntity>(Stream file)
+
+        public async Task<IEnumerable<PFM.Database.Entities.TransactionEntity>> ReadCSV<TransactionEntity>(Stream file)
         {
-
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 PrepareHeaderForMatch = args => args.Header.Replace("-", ""),
@@ -103,18 +102,36 @@ namespace PFM.Services
             var csv = new CsvReader(reader, config);
             var transactions = csv.GetRecords<TransactionCSVCommand>();
             List<PFM.Database.Entities.TransactionEntity> transactionEntities = new List<PFM.Database.Entities.TransactionEntity>();
+
+            // Create a HashSet to store transaction IDs that have already been processed in the CSV file
+            HashSet<string> processedTransactionIds = new HashSet<string>();
+
             foreach (var t in transactions)
             {
-                var transactionEntity = _mapper.Map<PFM.Database.Entities.TransactionEntity>(t);
-                
-                    transactionEntities.Add(transactionEntity);
-                
+                // proverka za duplikat vo csv
+                if (!processedTransactionIds.Contains(t.id))
+                {
+                    // proverka za duplikat vo baza
+                    bool isDuplicateInDatabase = await _transactionRepository.IsDuplicateTransaction(t.id);
+
+                    if (!isDuplicateInDatabase)
+                    {
+                        var transactionEntity = _mapper.Map<PFM.Database.Entities.TransactionEntity>(t);
+                        transactionEntities.Add(transactionEntity);
+
+                        // isprocesirano id:
+                        processedTransactionIds.Add(t.id);
+                    }
+                   
+                }
             }
 
-            _transactionRepository.ImportTransactions(transactionEntities);
-            return transactionEntities;
+            await _transactionRepository.ImportTransactions(transactionEntities);
 
+            return transactionEntities;
         }
+
+
 
     }
 

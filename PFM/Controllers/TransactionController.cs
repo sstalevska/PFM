@@ -10,13 +10,13 @@ namespace PFM.Controllers
     [Route("v1/transactions")]
     public class TransactionController : ControllerBase
     {
-        private readonly ILogger<TransactionController> _logger;
         private readonly ITransactionService _transactionService;
+        private readonly ISplitService _splitService;
 
-        public TransactionController(ILogger<TransactionController> logger, ITransactionService transactionService)
+        public TransactionController( ITransactionService transactionService, ISplitService splitService)
         {
-            _logger = logger;
             _transactionService = transactionService;
+            _splitService = splitService;
         }
 
         [HttpGet]
@@ -35,15 +35,17 @@ namespace PFM.Controllers
         }
 
 
-     
 
-        [HttpPost("{id}/split")]
-        public IActionResult SplitTransaction()
-        {
-            return Ok();
-        }
 
         
+        [HttpPost("{id}/split")]
+        public async Task<IActionResult> SplitTransaction(string id, [FromBody] List<SplitCommand> splits)
+        {
+            await _splitService.SplitTransaction(id, splits);
+            return Ok("Splits added successfully.");
+        }
+
+
 
         [HttpPost("auto-categorize")]
         public IActionResult AutoCategorizeTransactions()
@@ -59,12 +61,12 @@ namespace PFM.Controllers
         {
             if (Id == null)
             {
-                return NotFound();
+                return BadRequest();
             }
             var result = await _transactionService.CategorizeTransaction(Id, command);
             if (result == null)
             {
-                return BadRequest();
+                return NotFound();
             }
             return Ok(result);
         }
@@ -74,7 +76,7 @@ namespace PFM.Controllers
         [HttpPost("import")]
         public async Task<IActionResult> ImportTransactionsFromCSV([FromForm] IFormFile file)
         {
-            var transactions = _transactionService.ReadCSV<TransactionCSVCommand>(file.OpenReadStream());
+            var transactions = await _transactionService.ReadCSV<TransactionCSVCommand>(file.OpenReadStream());
 
             return Ok(transactions);
         }

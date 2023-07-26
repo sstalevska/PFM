@@ -7,5 +7,8 @@ namespace PFM.Database.Repositories
     {
         Task<List<CategoryEntity>> GetCategories(string? parentcode = null);
         Task ImportCategories(List<CategoryEntity> categoryEntities);
+
+        Task<CategoryEntity> GetCategoryByCode(string code);
+
     }
 }
