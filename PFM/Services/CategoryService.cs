@@ -25,29 +25,47 @@ namespace PFM.Services
             var categories = await _categoryRepository.GetCategories(parentcode);
             return _mapper.Map<List<Category>>(categories);
         }
-        public IEnumerable<Database.Entities.CategoryEntity> ReadCSV<CategoryEntity>(Stream file)
-        {
 
+
+        public async Task<IEnumerable<PFM.Database.Entities.CategoryEntity>> ReadCSV(Stream file)
+        {
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 PrepareHeaderForMatch = args => args.Header.Replace("-", ""),
-                HeaderValidated = null
-               // MissingFieldFound = null
+                HeaderValidated = null,
+                MissingFieldFound = null
             };
 
             var reader = new StreamReader(file);
             var csv = new CsvReader(reader, config);
             var categories = csv.GetRecords<CategoryCSVCommand>();
-            List<Database.Entities.CategoryEntity> categoryEntities = new List<Database.Entities.CategoryEntity>();
+            List<PFM.Database.Entities.CategoryEntity> categoryEntities = new List<PFM.Database.Entities.CategoryEntity>();
+
+            HashSet<string> processedCategoryCodes = new HashSet<string>();
+
             foreach (var c in categories)
             {
-                var categoryEntity = _mapper.Map<Database.Entities.CategoryEntity>(c);
-                categoryEntities.Add(categoryEntity);
+                // proverka za duplikat vo csv
+                if (!processedCategoryCodes.Contains(c.code))
+                {
+                    // proverka za duplikat vo baza
+                    bool isDuplicateInDatabase = await _categoryRepository.IsDuplicateCategory(c.code);
+
+                    if (!isDuplicateInDatabase)
+                    {
+                        var categoryEntity = _mapper.Map<PFM.Database.Entities.CategoryEntity>(c);
+                        categoryEntities.Add(categoryEntity);
+
+                        // isprocesirano id se dodava vo hashset
+                        processedCategoryCodes.Add(c.code);
+                    }
+
+                }
             }
 
-            _categoryRepository.ImportCategories(categoryEntities);
-            return categoryEntities;
+            await _categoryRepository.ImportCategories(categoryEntities);
 
+            return categoryEntities;
         }
 
     }

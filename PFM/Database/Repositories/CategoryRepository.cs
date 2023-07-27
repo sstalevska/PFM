@@ -47,10 +47,16 @@ namespace PFM.Database.Repositories
 
             await _dbContext.SaveChangesAsync();
         }
+       
         public async Task<CategoryEntity> GetCategoryByCode(string code)
         {
             return await _dbContext.Categories
                 .FirstOrDefaultAsync(c => c.code == code);
+        }
+
+        public async Task<bool> IsDuplicateCategory(string code)
+        {
+            return await _dbContext.Categories.AnyAsync(c => c.code == code);
         }
     }
 }

@@ -9,6 +9,7 @@ namespace PFM.Database.Repositories
         Task ImportCategories(List<CategoryEntity> categoryEntities);
 
         Task<CategoryEntity> GetCategoryByCode(string code);
+        Task<bool> IsDuplicateCategory(string code);
 
     }
 }

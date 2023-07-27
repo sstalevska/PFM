@@ -203,51 +203,7 @@ namespace PFM.Database.Repositories
 
         }
 
-        public async Task<List<TransactionEntity>> GetTransactionsForAnalytics(
-            string? catcode = null, 
-            string? startDate = null,
-            string? endDate = null,
-            string? direction = null
-            )
-        {
-            var query = _dbContext.Transactions.AsQueryable();
-
-          
-            if(!String.IsNullOrEmpty(catcode))
-            {
-                query = query.Where(o => o.catcode == catcode);
-            }
-
-            if (!String.IsNullOrEmpty(direction))
-
-            {
-                if (direction.Equals("d"))
-                {
-                    query = query.Where(o => o.direction == Direction.d);
-                }
-                if (direction.Equals("c"))
-                {
-                    query = query.Where(o => o.direction == Direction.c);
-                }
-            }
-
-            if (!String.IsNullOrEmpty(startDate))
-            {
-                DateTime parsedStartDate = DateTime.Parse(startDate);
-                query = query.Where(o => o.date >= parsedStartDate);
-            }
-
-            if (!String.IsNullOrEmpty(endDate))
-            {
-                DateTime parsedEndDate = DateTime.Parse(endDate);
-                query = query.Where(o => o.date <= parsedEndDate);
-            }
-            var transactions = await query.ToListAsync();
-
-            return transactions ;
-
-        }
-
+        
         public async Task<IEnumerable<Analytic>> GetAnalyticsByCategory(string? catcode = null, string? startDate = null, string? endDate = null, string? direction = null)
         {
 
@@ -255,7 +211,6 @@ namespace PFM.Database.Repositories
 
             if (!string.IsNullOrEmpty(catcode))
             {
-                // Filter by category code
                 query = query.Where(t => t.catcode == catcode);
             }
 
@@ -289,7 +244,6 @@ namespace PFM.Database.Repositories
                 .Select(g => new Analytic
                 {
                     catcode = g.Key.catcode,
-                    // parentcode = g.Key.SubcategoryName,
                     amount = g.Sum(t => t.amount),
                     count = g.Count()
                 }) ;
@@ -299,7 +253,6 @@ namespace PFM.Database.Repositories
 
         public async Task<bool> IsDuplicateTransaction(string transactionId)
         {
-            // Query the database to check if a transaction with the given ID already exists
             return await _dbContext.Transactions.AnyAsync(t => t.id == transactionId);
         }
 

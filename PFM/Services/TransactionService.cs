@@ -103,7 +103,6 @@ namespace PFM.Services
             var transactions = csv.GetRecords<TransactionCSVCommand>();
             List<PFM.Database.Entities.TransactionEntity> transactionEntities = new List<PFM.Database.Entities.TransactionEntity>();
 
-            // Create a HashSet to store transaction IDs that have already been processed in the CSV file
             HashSet<string> processedTransactionIds = new HashSet<string>();
 
             foreach (var t in transactions)
@@ -119,7 +118,7 @@ namespace PFM.Services
                         var transactionEntity = _mapper.Map<PFM.Database.Entities.TransactionEntity>(t);
                         transactionEntities.Add(transactionEntity);
 
-                        // isprocesirano id:
+                        // isprocesirano id se dodava vo hashset
                         processedTransactionIds.Add(t.id);
                     }
                    

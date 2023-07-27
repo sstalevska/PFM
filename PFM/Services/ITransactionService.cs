@@ -19,7 +19,6 @@ namespace PFM.Services
               int pageSize,
               SortOrder sortOrder,
               string? sortBy);
-       // IEnumerable<PFM.Database.Entities.TransactionEntity> ReadCSV<TransactionEntity>(Stream file);
         Task<Transaction> GetTransactionById(string id);
 
         Task<IEnumerable<PFM.Database.Entities.TransactionEntity>> ReadCSV<TransactionEntity>(Stream file);
