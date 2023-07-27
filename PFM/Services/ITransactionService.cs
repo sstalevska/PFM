@@ -22,5 +22,6 @@ namespace PFM.Services
         Task<Transaction> GetTransactionById(string id);
 
         Task<IEnumerable<PFM.Database.Entities.TransactionEntity>> ReadCSV<TransactionEntity>(Stream file);
+        Task AutoCategorizeTransactions();
     }
 }

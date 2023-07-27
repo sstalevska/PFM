@@ -26,6 +26,8 @@ namespace PFM.Database.Repositories
         Task<IEnumerable<Analytic>> GetAnalyticsByCategory(string? catcode = null, string? startDate = null, string? endDate = null, string? direction = null);
         Task<bool> IsDuplicateTransaction(string transactionId);
 
+        Task<List<TransactionEntity>> GetTransactionsWithoutCategory();
+        Task SaveChanges();
     }
 }
 

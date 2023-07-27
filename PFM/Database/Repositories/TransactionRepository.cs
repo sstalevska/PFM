@@ -9,35 +9,35 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace PFM.Database.Repositories
 {
-    
+
     public class TransactionRepository : ITransactionRepository
     {
         PfmDbContext _dbContext;
-        public TransactionRepository(PfmDbContext dbContext) { 
-            _dbContext= dbContext;
+        public TransactionRepository(PfmDbContext dbContext) {
+            _dbContext = dbContext;
         }
 
         public async Task<TransactionEntity> CategorizeTransaction(TransactionEntity transactionEntity)
         {
             var trans = await _dbContext.Transactions.FirstOrDefaultAsync(x => x.id.Equals(transactionEntity.id));
-            trans.catcode= transactionEntity.catcode; 
+            trans.catcode = transactionEntity.catcode;
 
             await _dbContext.SaveChangesAsync();
 
             return transactionEntity;
         }
         public async Task<PagedSortedList<TransactionEntity>> GetTransactions(
-            string? transactionKind = null, 
-            string? startDate = null, 
-            string? endDate = null, 
-            int page = 1, 
-            int pageSize = 10, 
-            SortOrder sortOrder = SortOrder.Asc, 
+            string? transactionKind = null,
+            string? startDate = null,
+            string? endDate = null,
+            int page = 1,
+            int pageSize = 10,
+            SortOrder sortOrder = SortOrder.Asc,
             string? sortBy = null)
         {
             var query = _dbContext.Transactions.AsQueryable();
             var totalCount = query.Count();
-            var totalPages = (int) Math.Ceiling(totalCount*1.0 / pageSize);
+            var totalPages = (int)Math.Ceiling(totalCount * 1.0 / pageSize);
 
             if (!String.IsNullOrEmpty(startDate))
             {
@@ -56,13 +56,13 @@ namespace PFM.Database.Repositories
                 switch (sortBy)
                 {
                     case "id":
-                        query = sortOrder == SortOrder.Asc 
-                            ? query.OrderBy(x => x.id) 
+                        query = sortOrder == SortOrder.Asc
+                            ? query.OrderBy(x => x.id)
                             : query.OrderByDescending(x => x.id);
                         break;
                     case "beneficiary-name":
-                        query = sortOrder == SortOrder.Asc 
-                            ? query.OrderBy(x => x.beneficiaryname) 
+                        query = sortOrder == SortOrder.Asc
+                            ? query.OrderBy(x => x.beneficiaryname)
                             : query.OrderByDescending(x => x.beneficiaryname);
                         break;
                     case "amount":
@@ -178,17 +178,17 @@ namespace PFM.Database.Repositories
 
             var transactions = await query.ToListAsync();
 
-            
-                return new PagedSortedList<TransactionEntity>
-                {
-                    TotalPages = totalPages,
-                    TotalCount = totalCount,
-                    Page = page,
-                    PageSize = pageSize,
-                    SortBy = sortBy,
-                    SortOrder = sortOrder,
-                    Items = transactions
-                };
+
+            return new PagedSortedList<TransactionEntity>
+            {
+                TotalPages = totalPages,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                SortBy = sortBy,
+                SortOrder = sortOrder,
+                Items = transactions
+            };
         }
         public async Task<TransactionEntity> GetTransactionById(string id)
         {
@@ -203,7 +203,7 @@ namespace PFM.Database.Repositories
 
         }
 
-        
+
         public async Task<IEnumerable<Analytic>> GetAnalyticsByCategory(string? catcode = null, string? startDate = null, string? endDate = null, string? direction = null)
         {
 
@@ -246,7 +246,7 @@ namespace PFM.Database.Repositories
                     catcode = g.Key.catcode,
                     amount = g.Sum(t => t.amount),
                     count = g.Count()
-                }) ;
+                });
 
             return await analytics.ToListAsync();
         }
@@ -255,6 +255,20 @@ namespace PFM.Database.Repositories
         {
             return await _dbContext.Transactions.AnyAsync(t => t.id == transactionId);
         }
+
+        public async Task<List<TransactionEntity>> GetTransactionsWithoutCategory()
+        {
+            return await _dbContext.Transactions
+                .Where(t => t.catcode == null)
+                .ToListAsync();
+        }
+
+        public async Task SaveChanges()
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+
+
 
     }
 }

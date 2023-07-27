@@ -10,6 +10,8 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using CsvHelper.Configuration;
 using CsvHelper;
 using System.Globalization;
+using Microsoft.Extensions.Configuration;
+using static PFM.Services.AutoCategorizationService;
 
 namespace PFM.Services
 {
@@ -17,10 +19,18 @@ namespace PFM.Services
     {
         ITransactionRepository _transactionRepository;
         IMapper _mapper;
-        public TransactionService(ITransactionRepository transactionRepository, IMapper mapper)
+        IAutoCategorizationService _autoCategorizationService;
+        IConfiguration _configuration;
+
+        public TransactionService(ITransactionRepository transactionRepository,
+            IMapper mapper,
+            IAutoCategorizationService autoCategorizationService,
+            IConfiguration configuration)
         {
             _transactionRepository = transactionRepository;
             _mapper = mapper;
+            _autoCategorizationService = autoCategorizationService;
+            _configuration = configuration;
         }
 
         private async Task<bool> CheckIfTransactionExists(string id)
@@ -130,6 +140,12 @@ namespace PFM.Services
             return transactionEntities;
         }
 
+
+        public async Task AutoCategorizeTransactions()
+        {
+            await _autoCategorizationService.AutoCategorizeTransactions();
+
+        }
 
 
     }

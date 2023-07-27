@@ -1,12 +1,18 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Npgsql;
 using PFM.Database;
 using PFM.Database.Repositories;
+using PFM.Models;
 using PFM.Services;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add configuration
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+builder.Configuration.AddEnvironmentVariables();
 
 // Add services to the container.
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
@@ -20,6 +26,9 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+
+builder.Services.AddScoped<IAutoCategorizationService, AutoCategorizationService>();
+
 
 
 
@@ -54,6 +63,9 @@ builder.Services.AddDbContext<PfmDbContext>(opt =>
 
 
 var app = builder.Build();
+
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

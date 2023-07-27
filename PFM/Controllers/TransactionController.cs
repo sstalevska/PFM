@@ -34,9 +34,6 @@ namespace PFM.Controllers
             return Ok(transactions);
         }
 
-
-
-
         
         [HttpPost("{id}/split")]
         public async Task<IActionResult> SplitTransaction(string id, [FromBody] List<SplitCommand> splits)
@@ -48,9 +45,18 @@ namespace PFM.Controllers
 
 
         [HttpPost("auto-categorize")]
-        public IActionResult AutoCategorizeTransactions()
+        public async Task<IActionResult> AutoCategorizeTransactions()
         {
-            return Ok();
+            try
+            {
+                await _transactionService.AutoCategorizeTransactions();
+
+                return Ok("Transactions have been auto-categorized successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred during auto-categorization: {ex.Message}");
+            }
         }
 
 

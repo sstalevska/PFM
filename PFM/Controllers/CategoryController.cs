@@ -30,9 +30,6 @@ namespace PFM.Controllers
             return Ok(categories);
         }
 
-    
-
-
 
     }
 }
