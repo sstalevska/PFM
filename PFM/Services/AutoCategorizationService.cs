@@ -33,8 +33,6 @@ namespace PFM.Services
                 if (matchingRule != null)
                 {
                     transaction.catcode = matchingRule.CatCode;
-                    // Update other properties if needed based on the matching rule
-                    // transaction.OtherProperty = matchingRule.OtherValue;
                 }
             }
 
@@ -65,8 +63,10 @@ namespace PFM.Services
                         return rule;
                     }
                 }
-                catch (ParseException)
+                catch (ParseException ex)
                 {
+                    var errorMessage = $"Error parsing the predicate for rule: {rule.Title}.";
+                    throw new ParseException(errorMessage, ex.Position);
                 }
             }
 

@@ -27,7 +27,7 @@ namespace PFM.Database.Repositories
             return transactionEntity;
         }
         public async Task<PagedSortedList<TransactionEntity>> GetTransactions(
-            string? transactionKind = null,
+                    string? transactionKind = null,
             string? startDate = null,
             string? endDate = null,
             int page = 1,
@@ -35,18 +35,22 @@ namespace PFM.Database.Repositories
             SortOrder sortOrder = SortOrder.Asc,
             string? sortBy = null)
         {
+            List<ValidationError> errors = new List<ValidationError>();
+
             var query = _dbContext.Transactions.AsQueryable();
             var totalCount = query.Count();
             var totalPages = (int)Math.Ceiling(totalCount * 1.0 / pageSize);
 
             if (!String.IsNullOrEmpty(startDate))
             {
+                
                 DateTime parsedStartDate = DateTime.Parse(startDate);
                 query = query.Where(o => o.date >= parsedStartDate);
             }
 
             if (!String.IsNullOrEmpty(endDate))
             {
+
                 DateTime parsedEndDate = DateTime.Parse(endDate);
                 query = query.Where(o => o.date <= parsedEndDate);
             }
@@ -115,7 +119,6 @@ namespace PFM.Database.Repositories
                 query = query.OrderBy(x => x.date);
             }
 
-            query = query.Skip((page - 1) * pageSize).Take(pageSize);
 
             if (!String.IsNullOrEmpty(transactionKind))
             {
@@ -178,7 +181,10 @@ namespace PFM.Database.Repositories
 
             var transactions = await query.ToListAsync();
 
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
 
+            totalCount = transactions.Count();
+            totalPages = (int)Math.Ceiling(totalCount * 1.0 / pageSize);
             return new PagedSortedList<TransactionEntity>
             {
                 TotalPages = totalPages,

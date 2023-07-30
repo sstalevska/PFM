@@ -12,25 +12,33 @@ using CsvHelper;
 using System.Globalization;
 using Microsoft.Extensions.Configuration;
 using static PFM.Services.AutoCategorizationService;
+using System.Linq.Expressions;
+using System.Transactions;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace PFM.Services
 {
     public class TransactionService : ITransactionService
     {
-        ITransactionRepository _transactionRepository;
+        PFM.Database.Repositories.ITransactionRepository _transactionRepository;
         IMapper _mapper;
-        IAutoCategorizationService _autoCategorizationService;
+        PFM.Services.IAutoCategorizationService _autoCategorizationService;
         IConfiguration _configuration;
+        ICategoryRepository _categoryRepository;
 
         public TransactionService(ITransactionRepository transactionRepository,
             IMapper mapper,
             IAutoCategorizationService autoCategorizationService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ICategoryRepository categoryRepository
+            )
         {
             _transactionRepository = transactionRepository;
             _mapper = mapper;
             _autoCategorizationService = autoCategorizationService;
             _configuration = configuration;
+            _categoryRepository = categoryRepository;
         }
 
         private async Task<bool> CheckIfTransactionExists(string id)
@@ -46,7 +54,7 @@ namespace PFM.Services
             }
         }
 
-        public async Task<PagedSortedList<Models.Transaction>> GetTransactions(
+        public async Task<PagedSortedListResponse<Models.Transaction>> GetTransactions(
             string? transactionKind,
             string? startDate,
             string? endDate,
@@ -55,20 +63,104 @@ namespace PFM.Services
             SortOrder sortOrder,
             string? sortBy)
         {
+            List<ValidationError> errors = new List<ValidationError>();
+
+            string? tk = transactionKind;
+            string? sd = startDate;
+            string? ed = endDate;
+            int p = page;
+            int ps = pageSize;
+            SortOrder so = sortOrder;
+            string? sb = sortBy;
+
+            if(startDate != null)
+            {
+                try
+                {
+                    DateTime? parsedStartDate = DateTime.Parse(startDate);
+                }
+                catch
+                {
+                    errors.Add(new ValidationError("startDate", "invalid-format", "Invalid format for startDate."));
+                    sd = null;
+                }
+            }
+            if(endDate != null)
+            {
+                try
+                {
+                    DateTime? parsedendDate = DateTime.Parse(endDate);
+                }
+                catch
+                {
+                    errors.Add(new ValidationError("endDate", "invalid-format", "Invalid format for endDate."));
+                    ed = null;
+                }
+            }
+           if(transactionKind != null)
+            {
+                var kinds = Enum.GetValues(typeof(TransactionKind));
+                bool flag = false;
+                foreach (var kind in kinds)
+                {
+                    if (kind.Equals(transactionKind))
+                    {
+                        flag = true;
+                    }
+                }
+                if(!flag)
+                {
+                    errors.Add(new ValidationError("transactionKinds", "invalid-data", "Transaction kind doesnt exist."));
+                    tk = null;
+                }
+            }
+           if((ps > 100))
+            {
+                ps = 100;
+            }
+           if(!(so==SortOrder.Asc || so == SortOrder.Desc))
+            {
+                errors.Add(new ValidationError("sortorder", "invalid-data", "SortOrder doesnt exist."));
+                so = SortOrder.Asc;
+            }
+            if (sortBy != null)
+            {
+                if(!(sortBy.Equals("id") || sortBy.Equals("beneficiaryname")||
+                    sortBy.Equals("date") || sortBy.Equals("direction") ||
+                    sortBy.Equals("amount") || sortBy.Equals("description") ||
+                    sortBy.Equals("kind") || sortBy.Equals("catcode") ||
+                    sortBy.Equals("currency") || sortBy.Equals("mcc") 
+                    ))
+                {
+                    errors.Add(new ValidationError("sortby", "invalid-data", "No such field in transactions."));
+                    sb = null;
+                }
+
+            }
+
+
+
             var transactions = await _transactionRepository.GetTransactions(
-           transactionKind,
-           startDate,
-           endDate,
-           page,
-           pageSize,
-           sortOrder,
-           sortBy);
-            return _mapper.Map<PagedSortedList<Models.Transaction>>(transactions);
+           tk,
+           sd,
+           ed,
+           p,
+           ps,
+           so,
+           sb);
+
+            var pagedSortedList = _mapper.Map<PagedSortedList<Models.Transaction>>(transactions);
+
+            var pagedSortedListResponse = new PagedSortedListResponse<PFM.Models.Transaction>(pagedSortedList, errors);
+
+
+            return pagedSortedListResponse;
         }
 
 
 
-        public async Task<Models.Transaction> GetTransactionById(string id)
+
+        public async Task<PFM.Models.Transaction> GetTransactionById(string id)
         {
             var transactionEntity = await _transactionRepository.GetTransactionById(id);
 
@@ -80,19 +172,36 @@ namespace PFM.Services
             return _mapper.Map<Models.Transaction>(transactionEntity);
         }
 
-       
-        public async Task<Models.Transaction> CategorizeTransaction(string Id, CategorizeTransactionCommand command)
+
+        public async Task<CategorizeTransactionResult> CategorizeTransaction(string Id, CategorizeTransactionCommand command)
         {
+            
+
             var entity = _mapper.Map<TransactionEntity>(command);
 
             var existingTransaction = await _transactionRepository.GetTransactionById(Id);
+            var result = new CategorizeTransactionResult();
+
             if (existingTransaction == null)
             {
-                return null;
+                result.Errors.Add(new ValidationError("Transaction", "not-found", "Transaction not found."));
             }
-            var result = await _transactionRepository.CategorizeTransaction(entity);
+            var cat = await _categoryRepository.GetCategoryByCode(command.catcode);
+            if(cat == null)
+            {
+                result.Errors.Add(new ValidationError("Category", "not-found", "Category not found."));
+                return result;
+            }
 
-            return _mapper.Map<Models.Transaction>(result);
+            var categorizeResult = await _transactionRepository.CategorizeTransaction(entity);
+
+            if (categorizeResult == null)
+            {
+                result.Errors.Add(new ValidationError("error", "unsuccessfull", "Transaction not categorized."));
+            }
+
+            result.Result = _mapper.Map<Models.Transaction>(categorizeResult);
+            return result;
         }
 
 
@@ -131,7 +240,7 @@ namespace PFM.Services
                         // isprocesirano id se dodava vo hashset
                         processedTransactionIds.Add(t.id);
                     }
-                   
+
                 }
             }
 
@@ -141,13 +250,48 @@ namespace PFM.Services
         }
 
 
+
+
+
+
         public async Task AutoCategorizeTransactions()
         {
             await _autoCategorizationService.AutoCategorizeTransactions();
 
         }
 
+        public bool IsFileCsvFormat(Stream fileStream)
+        {
+            // Read the first few lines of the file
+            using var reader = new StreamReader(fileStream);
+            const int NumberOfLinesToCheck = 5;
+            var lines = new string[NumberOfLinesToCheck];
+            for (int i = 0; i < NumberOfLinesToCheck; i++)
+            {
+                if (reader.EndOfStream)
+                    break;
+                lines[i] = reader.ReadLine();
+            }
+
+            // Check if the content follows the CSV format
+            const string CsvPattern = @"^([^,\r\n]*,){2,}[^,\r\n]*$";
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (string.IsNullOrEmpty(lines[i]))
+                    continue;
+
+                if (!Regex.IsMatch(lines[i], CsvPattern))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
 
     }
+
+
 
 }

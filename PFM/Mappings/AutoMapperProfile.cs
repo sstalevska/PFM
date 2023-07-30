@@ -26,6 +26,11 @@ namespace PFM.Mappings
             CreateMap<Split, SplitEntity>();
             CreateMap<SplitEntity, Split>();
 
+
+            CreateMap<PagedSortedListResponse<TransactionEntity>, PagedSortedList<Transaction>>();
+
+
+
         }
 
 

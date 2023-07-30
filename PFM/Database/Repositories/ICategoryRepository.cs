@@ -11,5 +11,6 @@ namespace PFM.Database.Repositories
         Task<CategoryEntity> GetCategoryByCode(string code);
         Task<bool> IsDuplicateCategory(string code);
 
+
     }
 }

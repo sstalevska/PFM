@@ -22,7 +22,7 @@ namespace PFM.Controllers
         {
             var categories = await _categoryService.ReadCSV(file.OpenReadStream());
 
-            return Ok(categories);
+            return Ok("Categories imported successfully.");
         }
         [HttpGet]
         public async Task<IActionResult> GetCategories([FromQuery] string? parentcode = null) {

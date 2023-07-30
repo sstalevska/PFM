@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using PFM.Commands;
+using PFM.Database.Entities;
 using PFM.Models;
 using PFM.Models.Enums;
 using PFM.Services;
+using System.Runtime.Intrinsics.X86;
 
 namespace PFM.Controllers
 {
@@ -13,7 +15,7 @@ namespace PFM.Controllers
         private readonly ITransactionService _transactionService;
         private readonly ISplitService _splitService;
 
-        public TransactionController( ITransactionService transactionService, ISplitService splitService)
+        public TransactionController(ITransactionService transactionService, ISplitService splitService)
         {
             _transactionService = transactionService;
             _splitService = splitService;
@@ -25,20 +27,35 @@ namespace PFM.Controllers
                 [FromQuery] string? startDate = null,
                 [FromQuery] string? endDate = null,
                 [FromQuery] int page = 1,
-                [FromQuery] int pageSize = 10,                
+                [FromQuery] int pageSize = 10,
                 [FromQuery] SortOrder sortOrder = SortOrder.Asc,
                 [FromQuery] string? sortBy = null
             )
         {
-            var transactions = await _transactionService.GetTransactions(transactionKind, startDate, endDate, page, pageSize, sortOrder, sortBy);
-            return Ok(transactions);
+            var response = await _transactionService.GetTransactions(transactionKind, startDate, endDate, page, pageSize, sortOrder, sortBy);
+
+            if(response.Errors.Count() >0)
+            {
+                return BadRequest(new { errors = response.Errors });
+            }
+            return Ok(response.Data);
         }
 
-        
+
         [HttpPost("{id}/split")]
         public async Task<IActionResult> SplitTransaction(string id, [FromBody] List<SplitCommand> splits)
         {
-            await _splitService.SplitTransaction(id, splits);
+            var errors =  await _splitService.SplitTransaction(id, splits);
+           
+
+            if (errors.Count > 0)
+            {
+                var response = new
+                {
+                    errors = errors
+                };
+                return BadRequest(response);
+            }
             return Ok("Splits added successfully.");
         }
 
@@ -65,29 +82,35 @@ namespace PFM.Controllers
         [HttpPost("{id}/categorize")]
         public async Task<IActionResult> CategorizeTransaction([FromRoute] string Id, [FromBody] CategorizeTransactionCommand command)
         {
-            if (Id == null)
-            {
-                return BadRequest();
-            }
+           
             var result = await _transactionService.CategorizeTransaction(Id, command);
-            if (result == null)
+           if(result.Errors.Count > 0)
             {
-                return NotFound();
+                var r = new
+                {
+                    errors = result.Errors
+                };
+                return BadRequest(r);
             }
-            return Ok(result);
+            return Ok(result.Result);
         }
 
-       
+
 
         [HttpPost("import")]
         public async Task<IActionResult> ImportTransactionsFromCSV([FromForm] IFormFile file)
         {
             var transactions = await _transactionService.ReadCSV<TransactionCSVCommand>(file.OpenReadStream());
 
-            return Ok(transactions);
+            return Ok("Transactions imported successfully.");
         }
 
 
-        
+
+
     }
+
+
+
+
 }
