@@ -23,7 +23,7 @@ namespace PFM.Database.Repositories
 
         Task ImportTransactions  (List<TransactionEntity> transactionEntities);
 
-        Task<IEnumerable<Analytic>> GetAnalyticsByCategory(string? catcode = null, string? startDate = null, string? endDate = null, string? direction = null);
+        Task<AnalyticListResponse> GetAnalyticsByCategory(string? catcode = null, string? startDate = null, string? endDate = null, string? direction = null);
         Task<bool> IsDuplicateTransaction(string transactionId);
 
         Task<List<TransactionEntity>> GetTransactionsWithoutCategory();

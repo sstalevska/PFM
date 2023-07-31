@@ -14,10 +14,10 @@ namespace PFM.Services
             _transactionRepository = transactionRepository;
         }
 
-        public async Task<IEnumerable<Analytic>> GetAnalytics(string? catcode = null, string? startDate = null, string? endDate = null, string? direction = null)
+        public async Task<AnalyticListResponse> GetAnalytics(string? catcode = null, string? startDate = null, string? endDate = null, string? direction = null)
         {
-           var analytics = await _transactionRepository.GetAnalyticsByCategory(catcode, startDate, endDate, direction);
-            return analytics;
+           var response = await _transactionRepository.GetAnalyticsByCategory(catcode, startDate, endDate, direction);
+            return response;
         }
 
 

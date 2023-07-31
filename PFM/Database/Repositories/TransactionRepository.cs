@@ -13,8 +13,10 @@ namespace PFM.Database.Repositories
     public class TransactionRepository : ITransactionRepository
     {
         PfmDbContext _dbContext;
-        public TransactionRepository(PfmDbContext dbContext) {
+        ICategoryRepository _categoryRepository;
+        public TransactionRepository(PfmDbContext dbContext, ICategoryRepository categoryRepository) {
             _dbContext = dbContext;
+            _categoryRepository = categoryRepository;
         }
 
         public async Task<TransactionEntity> CategorizeTransaction(TransactionEntity transactionEntity)
@@ -210,52 +212,78 @@ namespace PFM.Database.Repositories
         }
 
 
-        public async Task<IEnumerable<Analytic>> GetAnalyticsByCategory(string? catcode = null, string? startDate = null, string? endDate = null, string? direction = null)
+        public async Task<AnalyticListResponse> GetAnalyticsByCategory(string? catcode = null, string? startDate = null, string? endDate = null, string? direction = null)
         {
-
             var query = _dbContext.Transactions.AsQueryable();
+            List<ValidationError> errors = new List<ValidationError>();
 
             if (!string.IsNullOrEmpty(catcode))
             {
-                query = query.Where(t => t.catcode == catcode);
+                bool b = await _categoryRepository.IsDuplicateCategory(catcode);
+                if (b)
+                {
+                    query = query.Where(t => t.catcode == catcode);
+                }
+                else
+                {
+                    errors.Add(new ValidationError("category", "invalid", "Category doesn't exist."));
+                }
             }
 
-            if (!String.IsNullOrEmpty(direction))
-
+            if (!string.IsNullOrEmpty(direction))
             {
                 if (direction.Equals("d"))
                 {
                     query = query.Where(o => o.direction == Direction.d);
                 }
-                if (direction.Equals("c"))
+                else if (direction.Equals("c"))
                 {
                     query = query.Where(o => o.direction == Direction.c);
                 }
+                else
+                {
+                    errors.Add(new ValidationError("direction", "invalid", "Invalid direction value. Allowed values are 'd' and 'c'."));
+                }
             }
 
-            if (!String.IsNullOrEmpty(startDate))
+            if (!string.IsNullOrEmpty(startDate))
             {
-                DateTime parsedStartDate = DateTime.Parse(startDate);
-                query = query.Where(o => o.date >= parsedStartDate);
+                if (DateTime.TryParse(startDate, out DateTime parsedStartDate))
+                {
+                    query = query.Where(o => o.date >= parsedStartDate);
+                }
+                else
+                {
+                    errors.Add(new ValidationError("startDate", "invalid", "Invalid startDate format. Please provide a valid date."));
+                }
             }
 
-            if (!String.IsNullOrEmpty(endDate))
+            if (!string.IsNullOrEmpty(endDate))
             {
-                DateTime parsedEndDate = DateTime.Parse(endDate);
-                query = query.Where(o => o.date <= parsedEndDate);
+                if (DateTime.TryParse(endDate, out DateTime parsedEndDate))
+                {
+                    query = query.Where(o => o.date <= parsedEndDate);
+                }
+                else
+                {
+                    errors.Add(new ValidationError("endDate", "invalid", "Invalid endDate format. Please provide a valid date."));
+                }
             }
 
-            var analytics = query
+
+            var analytics = await query
                 .GroupBy(t => new { t.catcode })
                 .Select(g => new Analytic
                 {
                     catcode = g.Key.catcode,
                     amount = g.Sum(t => t.amount),
                     count = g.Count()
-                });
+                })
+                .ToListAsync();
 
-            return await analytics.ToListAsync();
+            return new AnalyticListResponse(analytics, errors);
         }
+
 
         public async Task<bool> IsDuplicateTransaction(string transactionId)
         {

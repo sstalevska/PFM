@@ -36,12 +36,20 @@ namespace PFM.Controllers
             [FromQuery] string? direction = null
             )
         {
-            var analytics = await _analyticsService.GetAnalytics(
+            var response = await _analyticsService.GetAnalytics(
                                                         catcode, 
                                                         startDate,
                                                         endDate,
                                                         direction);
-            return Ok(analytics);
+            if(response.Errors.Count > 0)
+            {
+                var r = new
+                {
+                    errors = response.Errors
+                };
+                return BadRequest(r);
+            }
+            return Ok(response.Analytics);
         }
     }
 }
