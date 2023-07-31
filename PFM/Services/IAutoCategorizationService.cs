@@ -5,7 +5,9 @@ namespace PFM.Services
 {
     public interface IAutoCategorizationService
     {
-        Task AutoCategorizeTransactions();
-    
+        Task<List<ValidationError>> AutoCategorizeTransactions();
+        RuleErrorListResponse<AutoCategorizationRule> FindMatchingRule(TransactionEntity transaction, List<AutoCategorizationRule> rules);
+
+
     }
 }

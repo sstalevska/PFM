@@ -5,7 +5,7 @@ namespace PFM.Services
 {
     public interface ICategoryService 
     {
-         Task<List<Category>> GetCategories(string? parentcode);
+         Task<ListResponse<Category>> GetCategories(string? parentcode);
         Task<IEnumerable<PFM.Database.Entities.CategoryEntity>> ReadCSV(Stream file);
 
 

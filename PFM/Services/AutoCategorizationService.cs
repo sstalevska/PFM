@@ -21,22 +21,32 @@ namespace PFM.Services
             _transactionRepository = transactionRepository;
         }
 
-        public async Task AutoCategorizeTransactions()
+        public async Task<List<ValidationError>> AutoCategorizeTransactions()
         {
             var transactions = await _transactionRepository.GetTransactionsWithoutCategory();
             var rules = GetAutoCategorizationRules();
 
-            foreach (var transaction in transactions)
-            {
-                var matchingRule = FindMatchingRule(transaction, rules);
+            var errors = new List<ValidationError>();
 
-                if (matchingRule != null)
+
+            foreach (var t in transactions)
+            {
+                if(errors.Count > 0)
                 {
-                    transaction.catcode = matchingRule.CatCode;
+                    return errors;
+                }
+                var response = FindMatchingRule(t, rules);
+
+                if (response.Rule != null)
+                {
+                    t.catcode = response.Rule.CatCode;
+                }else if(response.Errors.Count >0){
+                    errors.AddRange(response.Errors);
                 }
             }
 
             await _transactionRepository.SaveChanges();
+            return errors;
         }
 
         private List<AutoCategorizationRule> GetAutoCategorizationRules()
@@ -44,8 +54,11 @@ namespace PFM.Services
             return _configuration.GetSection("AutoCategorizationRules").Get<List<AutoCategorizationRule>>();
         }
 
-        private AutoCategorizationRule FindMatchingRule(TransactionEntity transaction, List<AutoCategorizationRule> rules)
+        public RuleErrorListResponse<AutoCategorizationRule> FindMatchingRule(TransactionEntity transaction, List<AutoCategorizationRule> rules)
         {
+            var errors = new List<ValidationError>();
+
+            var r = new AutoCategorizationRule();
             var interpreter = new Interpreter();
 
             interpreter.SetVariable("beneficiaryname", transaction.beneficiaryname);
@@ -60,17 +73,19 @@ namespace PFM.Services
 
                     if (isMatch is bool matchResult && matchResult)
                     {
-                        return rule;
+                        r = rule;
                     }
                 }
-                catch (ParseException ex)
+                catch 
                 {
-                    var errorMessage = $"Error parsing the predicate for rule: {rule.Title}.";
-                    throw new ParseException(errorMessage, ex.Position);
+                    var error = new ValidationError("rule-parsing", "invalid-predicate", $"Error parsing the predicate for rule: {rule.Title}");
+                    errors.Add(error);
+                    r = null;
                 }
             }
 
-            return null;
+            var response  = new RuleErrorListResponse<AutoCategorizationRule>(r, errors);
+            return response;
         }
     }
 }

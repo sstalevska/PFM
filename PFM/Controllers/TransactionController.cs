@@ -1,10 +1,16 @@
+using CsvHelper.Configuration;
+using CsvHelper;
 using Microsoft.AspNetCore.Mvc;
 using PFM.Commands;
 using PFM.Database.Entities;
 using PFM.Models;
 using PFM.Models.Enums;
 using PFM.Services;
+using System.Globalization;
 using System.Runtime.Intrinsics.X86;
+using CsvHelper.Configuration;
+using System;
+
 
 namespace PFM.Controllers
 {
@@ -14,11 +20,14 @@ namespace PFM.Controllers
     {
         private readonly ITransactionService _transactionService;
         private readonly ISplitService _splitService;
+        private readonly IAutoCategorizationService _autocategorizationService ;
 
-        public TransactionController(ITransactionService transactionService, ISplitService splitService)
+        public TransactionController(
+            ITransactionService transactionService, ISplitService splitService, IAutoCategorizationService autocategorizationService)
         {
             _transactionService = transactionService;
             _splitService = splitService;
+            _autocategorizationService = autocategorizationService;
         }
 
         [HttpGet]
@@ -64,16 +73,19 @@ namespace PFM.Controllers
         [HttpPost("auto-categorize")]
         public async Task<IActionResult> AutoCategorizeTransactions()
         {
-            try
-            {
-                await _transactionService.AutoCategorizeTransactions();
+            
 
-                return Ok("Transactions have been auto-categorized successfully.");
-            }
-            catch (Exception ex)
+               var errors =  await _autocategorizationService.AutoCategorizeTransactions();
+            if (errors.Count > 0)
             {
-                return StatusCode(500, $"An error occurred during auto-categorization: {ex.Message}");
+                var response = new
+                {
+                    errors = errors
+                };
+                return BadRequest(response);
             }
+            return Ok("Transactions have been auto-categorized successfully.");
+            
         }
 
 
@@ -100,17 +112,57 @@ namespace PFM.Controllers
         [HttpPost("import")]
         public async Task<IActionResult> ImportTransactionsFromCSV([FromForm] IFormFile file)
         {
-            var transactions = await _transactionService.ReadCSV<TransactionCSVCommand>(file.OpenReadStream());
+            var e = new List<ValidationError>();
+          
+            if (!IsFileCsvFormat(file))
+            {
+                e.Add(new ValidationError("file", "invalid-format", "The file provided is not in csv format."));
+                var response = new
+                {
+                    errors = e
+                };
+                return BadRequest(response);
+            }
+            try
+            {
+                await _transactionService.ReadCSV<TransactionCSVCommand>(file.OpenReadStream());
+                return Ok("Transactions imported successfully.");
+            }
+            catch
+            {
+                e.Add(new ValidationError("file", "invalid-data", "The file provided doesn't contain required data fields."));
+                return BadRequest(e);
+;            }
 
-            return Ok("Transactions imported successfully.");
+
+
         }
 
 
+
+        public bool IsFileCsvFormat(IFormFile file)
+           {
+            var validExtensions = new[] { ".csv" };
+            var fileExtension = Path.GetExtension(file.FileName);
+            if (validExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+                return false;
+        }
+
+
+
+
+       
 
 
     }
 
 
 
-
 }
+
+
+
+

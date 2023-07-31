@@ -8,6 +8,7 @@ using PFM.Database.Repositories;
 using PFM.Models;
 using PFM.Models.Enums;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace PFM.Services
 {
@@ -20,10 +21,24 @@ namespace PFM.Services
             _categoryRepository = categoryRepository;
             _mapper = mapper;
         }
-        public async Task<List<Category>> GetCategories(string? parentcode)
+        public async Task<ListResponse<Category>> GetCategories(string? parentcode)
         {
+            List<ValidationError> errors = new List<ValidationError>();
+
+            if(!string.IsNullOrEmpty(parentcode))
+            {
+                if (!Regex.IsMatch(parentcode, "^[A-Z]$"))
+                {
+                    errors.Add(new ValidationError("parentcode", "invalid", "Parent code should be a single capital letter (A-Z)."));
+                }
+            }
+           
+
             var categories = await _categoryRepository.GetCategories(parentcode);
-            return _mapper.Map<List<Category>>(categories);
+            var categorylist =  _mapper.Map<List<Category>>(categories);
+            var listResponse = new ListResponse<PFM.Models.Category>(categorylist, errors);
+            return listResponse;
+
         }
 
 
